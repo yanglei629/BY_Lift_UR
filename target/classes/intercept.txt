@@ -1,0 +1,2 @@
+2022-10-20 18:24:10.282159 executable: /home/ur/com.backyard.DL1200LIFT/src/main/resources/daemonEnv/venv/bin/python3
+2022-10-20 18:24:10.282219 path: ['/home/ur/com.backyard.DL1200LIFT/src/main/resources/daemonEnv/daemon', '/usr/lib/python35.zip', '/usr/lib/python3.5', '/usr/lib/python3.5/plat-x86_64-linux-gnu', '/usr/lib/python3.5/lib-dynload', '/home/ur/com.backyard.DL1200LIFT/src/main/resources/daemonEnv/venv/lib/python3.5/site-packages']

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ResourceBundleManager">
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_cs.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_da.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_de.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_es.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_fr.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_hu.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_it.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ko.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_nl.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_no.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_pl.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_pt.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ro.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ru.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sk.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sl.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sv.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_tr.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_zh.properties" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_zh_TW.properties" />
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_cs.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_da.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_de.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_es.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_fr.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_hu.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_it.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_jp.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ko.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_nl.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_no.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_pl.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_pt.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ro.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_ru.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sk.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sl.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_sv.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_tr.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_zh.properties" />
+      <file value="file://$PROJECT_DIR$/src/main/resources/i18n/units/units_zh_TW.properties" />
+      <base-name>units</base-name>
+    </custom-resource-bundle>
+  </component>
+</project>
