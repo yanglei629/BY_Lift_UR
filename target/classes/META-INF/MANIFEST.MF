@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1673901023451
+Bnd-LastModified: 1675975163679
 Build-Jdk: 1.8.0_292
 Built-By: ur
 Bundle-Activator: com.backyard.DL1200LIFT.impl.Activator
@@ -12,7 +12,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: DL1200LIFT
 Bundle-SymbolicName: com.backyard.DL1200LIFT
 Bundle-Vendor: Backyard shanghai Inc.
-Bundle-Version: 1.1.0
+Bundle-Version: 1.6.0
 Created-By: Apache Maven Bundle Plugin
 Export-Package: scriptCommunicator;version="1.02.0"
 Import-Package: com.ur.urcap.api.contribution;version="[1.7,2)",com.ur.u

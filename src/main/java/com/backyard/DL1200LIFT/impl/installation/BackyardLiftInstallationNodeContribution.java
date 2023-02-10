@@ -22,6 +22,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
     private static final String DEFAULT_IP = "192.168.10.11";
     private final BackyardLiftInstallationNodeView view;
     private final KeyboardInputFactory keyboardFactory;
+    private final InstallationAPIProvider apiProvider;
     private DataModel model;
 
     //communication scripter
@@ -38,6 +39,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
     private boolean isConnected = false;
 
     public BackyardLiftInstallationNodeContribution(InstallationAPIProvider apiProvider, DataModel model, BackyardLiftInstallationNodeView view, LiftDaemonService daemonService) {
+        this.apiProvider = apiProvider;
         this.keyboardFactory = apiProvider.getUserInterfaceAPI().getUserInteraction().getKeyboardInputFactory();
         this.model = model;
         this.view = view;
@@ -74,6 +76,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
         view.setDownBtn(getTextResource().down());
         view.setZeroCalibBtn(getTextResource().zeroCalibration());
         view.setStopBtn(getTextResource().Stop());
+        view.setCancelStopBtn(getTextResource().CancelStop());
 
         view.showIP(getIP());
 
@@ -86,6 +89,14 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        }).start();*/
+
+
+        /*new Thread(new Runnable() {
+            @Override
+            public void run() {
+
             }
         }).start();*/
 
@@ -220,5 +231,9 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
 
     public void stopLift() {
         getXmlRpcDaemonInterface().stop();
+    }
+
+    public void cancelStopLift() {
+        getXmlRpcDaemonInterface().cancelStop();
     }
 }

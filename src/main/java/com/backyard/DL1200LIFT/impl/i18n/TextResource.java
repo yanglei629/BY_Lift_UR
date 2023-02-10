@@ -147,4 +147,12 @@ public class TextResource {
 	public String controlMode() {
 		return getStringByKey("control_mode");
 	}
+
+	public String CancelStop() {
+		return getStringByKey("cancel_stop");
+	}
+
+    public String stop() {
+		return getStringByKey("stop");
+    }
 }

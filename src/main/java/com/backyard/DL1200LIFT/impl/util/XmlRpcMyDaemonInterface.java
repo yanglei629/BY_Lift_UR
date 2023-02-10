@@ -26,14 +26,6 @@ public class XmlRpcMyDaemonInterface {
         client.setConfig(config);
     }
 
-    public Integer getSum(Integer a, Integer b) throws XmlRpcException {
-        ArrayList<Integer> args = new ArrayList<Integer>();
-        args.add(a);
-        args.add(b);
-        Object result = client.execute("add", args);
-        return (Integer) result;
-    }
-
     public Integer connect(String ip) {
         ArrayList<String> args = new ArrayList<String>();
         args.add(ip);
@@ -181,6 +173,17 @@ public class XmlRpcMyDaemonInterface {
         Object result = null;
         try {
             result = client.execute("stop", args);
+        } catch (XmlRpcException e) {
+            e.printStackTrace();
+        }
+        return (Integer) result;
+    }
+
+    public Integer cancelStop() {
+        ArrayList<Integer> args = new ArrayList<Integer>();
+        Object result = null;
+        try {
+            result = client.execute("cancel_stop", args);
         } catch (XmlRpcException e) {
             e.printStackTrace();
         }

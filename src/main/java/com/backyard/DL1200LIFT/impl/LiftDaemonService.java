@@ -15,7 +15,8 @@ public class LiftDaemonService implements DaemonService {
 
         try {
             System.out.println("Daemon Status Before: " + daemon.getState());
-            daemonContribution.installResource(new URL("file:daemonEnv/"));
+            //daemonContribution.installResource(new URL("file:daemonEnv/"));
+            daemonContribution.installResource(new URL("file:daemonEnv/daemon"));
             daemon.start();
             System.out.println("Daemon Status After: " + daemon.getState());
         } catch (MalformedURLException e) {
@@ -26,7 +27,8 @@ public class LiftDaemonService implements DaemonService {
     @Override
     public URL getExecutable() {
         try {
-            return new URL("file:daemonEnv/daemon.sh");
+            //return new URL("file:daemonEnv/daemon.sh");
+            return new URL("file:daemonEnv/daemon/main.py");
         } catch (MalformedURLException e) {
             e.printStackTrace();
             return null;

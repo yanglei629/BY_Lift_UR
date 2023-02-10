@@ -33,6 +33,8 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
     private JButton disconnectBtn;
     private JButton stopBtn;
     private BackyardLiftInstallationNodeContribution contribution;
+    private JComboBox modeComboBox;
+    private JButton cancelStopBtn;
 
     public BackyardLiftInstallationNodeView(Style style) {
         this.style = style;
@@ -73,7 +75,7 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
     private Box createCombo(final BackyardLiftInstallationNodeContribution installationNode) {
         //Object[] items = {"Jog Panel Control", "Robot Remote Control"};
         Object[] items = {installationNode.getTextResource().jogMode(), installationNode.getTextResource().remoteMode()};
-        JComboBox modeComboBox = new JComboBox(items);
+        modeComboBox = new JComboBox(items);
         modeComboBox.setPreferredSize(new Dimension(200, 30));
         modeComboBox.setMaximumSize(new Dimension(200, 30));
         modeComboBox.addActionListener(new ActionListener() {
@@ -170,6 +172,15 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
                     System.out.println("Connect Lift Success");
                     modeBox.setVisible(true);
                     setConnectStatusLabel(installationNode.getTextResource().connected());
+
+                    Integer mode = installationNode.getXmlRpcDaemonInterface().get_mode();
+
+                    //0: jog    1: remote
+                    if (mode == 10) {
+                        modeComboBox.setSelectedIndex(0);
+                    } else {
+                        modeComboBox.setSelectedIndex(1);
+                    }
                 } else {
 
                 }
@@ -256,14 +267,27 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
             }
         });
 
+        cancelStopBtn = new JButton("Cancel Stop");
+        cancelStopBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                installationNode.cancelStopLift();
+            }
+        });
+
         box.add(style.createHorizontalIndent());
         box.add(bUp);
         box.add(style.createHorizontalIndent());
         box.add(bDown);
         box.add(style.createHorizontalIndent());
         box.add(zeroCalibBtn);
-        box.add(style.createHorizontalIndent());
-        box.add(stopBtn);
+
+        /*box.add(style.createHorizontalIndent());
+        box.add(stopBtn);*/
+
+        /*box.add(style.createHorizontalIndent());
+        box.add(cancelStopBtn);*/
         return box;
     }
 
@@ -334,5 +358,9 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
 
     public void setStopBtn(String stop) {
         stopBtn.setText(stop);
+    }
+
+    public void setCancelStopBtn(String cancelStop) {
+        cancelStopBtn.setText(cancelStop);
     }
 }

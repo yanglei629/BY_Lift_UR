@@ -7,7 +7,7 @@
 
     <groupId>com.backyard</groupId>
     <artifactId>DL1200LIFT</artifactId>
-    <version>1.1.0</version>
+    <version>1.6.0</version>
     <name>DL1200LIFT</name>
     <packaging>bundle</packaging>
 
@@ -28,7 +28,7 @@
         <!--********************************************************************-->
 
         <!-- Host, username and password of the robot to be used when running "mvn install -Premote" -->
-        <urcap.install.host>192.168.10.15</urcap.install.host>
+        <urcap.install.host>192.168.1.15</urcap.install.host>
         <urcap.install.username>root</urcap.install.username>
         <urcap.install.password>easybot</urcap.install.password>
 

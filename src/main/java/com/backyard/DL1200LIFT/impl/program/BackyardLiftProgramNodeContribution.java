@@ -73,6 +73,7 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
 
     @Override
     public void openView() {
+        //international
         view.setArgumentText(getTextResource().argument());
         view.setStatusText(getTextResource().status());
         view.setTargetPos(getTextResource().targetPos() + ":");
@@ -85,16 +86,21 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
 
         view.setMovingStatus(getTextResource().status() + ":");
 
+        view.setStopBtn(getTextResource().stop());
+
+        //refresh status
         view.showPos(getPos());
 
+
         isViewOpen = true;
+        //refresh status
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (isViewOpen) {
                     updateUI();
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -126,7 +132,8 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
     @Override
     public void generateScript(ScriptWriter scriptWriter) {
         //build rpc client
-        scriptWriter.appendLine("lift=rpc_factory(\"xmlrpc\",\"http://127.0.0.1:4444/\")");
+        scriptWriter.appendLine("lift=rpc_factory(\"xmlrpc\",\"http://127.0.0.1:9999/\")");
+        scriptWriter.appendLine("lift.cancel_stop()");
         scriptWriter.appendLine("lift.set_target_pos(" + getPos() + ")");
 
         //wait for arrive
@@ -201,5 +208,9 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
 
     public void setPos(Integer pos) {
         model.set(POSKEY, pos);
+    }
+
+    public BackyardLiftInstallationNodeContribution getInstalltion() {
+        return this.programAPI.getInstallationNode(BackyardLiftInstallationNodeContribution.class);
     }
 }

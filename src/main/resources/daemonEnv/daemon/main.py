@@ -1,29 +1,67 @@
 #!/usr/bin/env python2
-
-# python2 version
 import sys
+print(sys.path)
+# python2 version
 import datetime
+import modbus_tk.defines as cst
+import socket
+import threading
 import time
 # python2
-import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer
-import modbus_tk.defines as cst
 from modbus_tk import modbus_tcp
-import traceback
 
+is_connected = False
 slave = 1
 master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
 master.set_timeout(5)
+
+# PLAYING PAUSED STOPPED
+pre_program_state = ''
+current_program_state = ''
+
+HOST = '127.0.0.1'
+PORT = 29999
+
+dash = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+dash.connect((HOST, PORT))
+recv = dash.recv(1024)
+print('recv: ' + recv.decode())
+
+
+def get_program_state():
+    try:
+        global dash
+        # outdata = 'programState\n'
+        print("---------------")
+        outdata = 'running\n'
+        dash.send(outdata.encode())
+        print("------")
+
+        indata = dash.recv(1024)
+        print('recv: ' + indata.decode())
+        # return indata.decode().split(' ')[0]
+        return indata.decode().split(':')[1].strip()
+    except Exception as e:
+        print(str(e))
+        # return get_program_state()
+        return -1
 
 
 def connect(ip):
     try:
         global master
+        global is_connected
         disconnect()
         master = modbus_tcp.TcpMaster(ip, 502, 5)
         master.set_timeout(5)
+
+        ret = get_running_status()
+        if ret != -1:
+            is_connected = True
+
         # return 0
-        return get_running_status()
+        return ret
     except Exception as e:
         print("connect: " + str(e))
         return -1
@@ -32,7 +70,9 @@ def connect(ip):
 def disconnect():
     try:
         global master
+        global is_connected
         master.close()
+        is_connected = False
         return 0
     except:
         return -1
@@ -68,6 +108,7 @@ def get_mode():
 
 
 def lift_up(value):
+    cancel_stop()
     try:
         global master
         master.execute(slave, cst.WRITE_SINGLE_COIL, 0, output_value=int(value))
@@ -80,6 +121,7 @@ def lift_up(value):
 
 
 def lift_down(value):
+    cancel_stop()
     try:
         global master
         master.execute(slave, cst.WRITE_SINGLE_COIL, 1, output_value=int(value))
@@ -92,6 +134,7 @@ def lift_down(value):
 
 
 def set_target_pos(value):
+    cancel_stop()
     try:
         global master
         master.execute(slave, cst.WRITE_SINGLE_REGISTER, 100, output_value=value)
@@ -101,6 +144,7 @@ def set_target_pos(value):
 
 
 def calibrate():
+    cancel_stop()
     try:
         lift_down(True)
         while 1:
@@ -117,7 +161,7 @@ def calibrate():
                     return 0
                 else:
                     return -1
-            time.sleep(1)
+            # time.sleep(1)
     except:
         return -1
 
@@ -163,24 +207,57 @@ def stop():
     print("stop lift")
     try:
         global master
-        ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, 0)
+        # ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, 0)
+        ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, output_value=0)
         return ret[0]
     except:
         return -1
 
 
 def cancel_stop():
-    print("stop lift")
+    print("cancel stop lift")
     try:
         global master
-        ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, 1)
+        # ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, 1)
+        ret = master.execute(slave, cst.WRITE_SINGLE_COIL, 2, output_value=1)
         return ret[0]
+        # return 0
     except:
         return -1
 
 
+def monitor_program_state():
+    global current_program_state
+    global pre_program_state
+    global is_connected
+
+    while True:
+        res = get_program_state()
+        if res == -1:
+            print("[WARING] get program state failed")
+            time.sleep(1)
+            continue
+        current_program_state = res
+        # if current_program_state == 'STOPPED' and pre_program_state == 'PLAYING':
+        #     print("[Warning] Program Stopped")
+        #     if is_connected:
+        #         set_target_pos(get_target_pos())
+
+        if current_program_state == 'false' and pre_program_state == 'true':
+            print("[Warning] Program Stopped")
+            # if is_connected:
+            #     # set_target_pos(get_target_pos())
+            #     stop()
+            stop()
+        pre_program_state = current_program_state
+        time.sleep(1)
+
+
+pre_program_state = get_program_state()
+threading.Thread(target=monitor_program_state, args=()).start()
+
 port = 9999
-server = SimpleXMLRPCServer(("127.0.0.1", 9999), allow_none=True)
+server = SimpleXMLRPCServer(("127.0.0.1", port), allow_none=True)
 
 server.register_function(stop, "stop")
 server.register_function(cancel_stop, "cancel_stop")

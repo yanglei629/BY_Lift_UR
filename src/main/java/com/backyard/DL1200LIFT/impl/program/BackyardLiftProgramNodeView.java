@@ -41,6 +41,7 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
     private JLabel targetPosLabel;
     private JLabel statusHeader;
     private JLabel argumentHeader;
+    private JButton stopBtn;
 
     public BackyardLiftProgramNodeView(Style style) {
         this.style = style;
@@ -130,6 +131,14 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
             }
         });
 
+        stopBtn = new JButton("Stop ");
+        stopBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                provider.get().getInstalltion().stopLift();
+            }
+        });
+
         //pos input field
         inputPos = new JTextField();
         //inputPos.setFocusable(false);
@@ -157,7 +166,11 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
         box.add(style.createHorizontalSpacing(10));
         box.add(new JLabel("mm"));
         box.add(style.createHorizontalSpacing(15));
+
         btnbox.add(performBtn);
+        btnbox.add(style.createHorizontalSpacing(10));
+        btnbox.add(stopBtn);
+
         returnBox.add(box);
         returnBox.add(style.createVerticalSpacing());
         returnBox.add(Box.createVerticalStrut(15));
@@ -224,5 +237,9 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
 
     public void setArgumentText(String argument) {
         argumentHeader.setText(argument);
+    }
+
+    public void setStopBtn(String stop) {
+        stopBtn.setText(stop);
     }
 }
