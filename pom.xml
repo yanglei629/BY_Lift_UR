@@ -7,7 +7,7 @@
 
     <groupId>com.backyard</groupId>
     <artifactId>DL1200LIFT</artifactId>
-    <version>1.6.0</version>
+    <version>1.9.0</version>
     <name>DL1200LIFT</name>
     <packaging>bundle</packaging>
 

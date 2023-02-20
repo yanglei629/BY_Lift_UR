@@ -36,7 +36,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
 
     private final LanguagePack languagePack;
     private boolean isViewOpen = false;
-    private boolean isConnected = false;
+    public boolean isConnected = false;
 
     public BackyardLiftInstallationNodeContribution(InstallationAPIProvider apiProvider, DataModel model, BackyardLiftInstallationNodeView view, LiftDaemonService daemonService) {
         this.apiProvider = apiProvider;
@@ -67,6 +67,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
 
     @Override
     public void openView() {
+        //international
         view.setIpLabel(createIPString());
         view.setConnectBtn(createConnectString());
         view.setDisconnectBtn(createDisconnectString());
@@ -78,42 +79,31 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
         view.setStopBtn(getTextResource().Stop());
         view.setCancelStopBtn(getTextResource().CancelStop());
 
+        //lif status
+        view.setStatusText(getTextResource().status());
+
+        view.setCurrentPosLabel(getTextResource().currentPos() + ":");
+
+        view.setMovingStatus(getTextResource().status() + ":");
+
         view.showIP(getIP());
-
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (daemonService.getDaemon().getState() != DaemonContribution.State.RUNNING)
-                        BackyardLiftInstallationNodeContribution.this.awaitDaemonRunning(5000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }).start();*/
-
-
-        /*new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        }).start();*/
-
 
         //monitor connection
         isViewOpen = true;
+
+        /*refreshConnectionState();
+        refreshMode();*/
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (isViewOpen) {
+                    refreshConnectionState();
                     if (isConnected) {
+                        refreshMode();
+                        updateUI();
+                    }
 
-                    }
-                    Integer current_pos = getXmlRpcMyDaemonInterface().get_current_pos();
-                    if (current_pos == null || current_pos == -1) {
-                        view.setDisconnect(-1, null);
-                    }
+                    //sleep
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
@@ -122,6 +112,46 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
                 }
             }
         }).start();
+    }
+
+    //refresh connection state
+    private void refreshConnectionState() {
+        Integer current_pos = getXmlRpcMyDaemonInterface().get_current_pos();
+        if (current_pos == null || current_pos == -1) {
+            view.setDisconnect(-1, null);
+            isConnected = false;
+        } else {
+            view.setConnected();
+            isConnected = true;
+        }
+    }
+
+
+    //refresh lift data
+    private void updateUI() {
+        view.setCurrentPosLabel(getTextResource().currentPos() + ":" + getCurrentPos() + "mm");
+
+        int value = getMovingStatus();
+        if (value == 1) {
+            view.setMovingStatus(getTextResource().status() + ":" + getTextResource().moving());
+        } else {
+            view.setMovingStatus(getTextResource().status() + ":" + getTextResource().stopped());
+        }
+    }
+
+    public int getTargetPos() {
+        int returnValue = getXmlRpcDaemonInterface().get_target_pos();
+        return returnValue;
+    }
+
+    public int getCurrentPos() {
+        int returnValue = getXmlRpcDaemonInterface().get_current_pos();
+        return returnValue;
+    }
+
+    public int getMovingStatus() {
+        int returnValue = getXmlRpcDaemonInterface().get_running_status();
+        return returnValue;
     }
 
     private String createDisconnectString() {
@@ -235,5 +265,11 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
 
     public void cancelStopLift() {
         getXmlRpcDaemonInterface().cancelStop();
+    }
+
+
+    public void refreshMode() {
+        Integer mode = getXmlRpcDaemonInterface().get_mode();
+        view.setModeBox(mode);
     }
 }

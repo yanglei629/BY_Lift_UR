@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 import sys
+
 print(sys.path)
 # python2 version
-import datetime
 import modbus_tk.defines as cst
 import socket
 import threading
@@ -10,33 +10,26 @@ import time
 # python2
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from modbus_tk import modbus_tcp
+import ctypes
 
 is_connected = False
 slave = 1
 master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
 master.set_timeout(5)
 
+dash = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
 # PLAYING PAUSED STOPPED
 pre_program_state = ''
 current_program_state = ''
-
-HOST = '127.0.0.1'
-PORT = 29999
-
-dash = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-dash.connect((HOST, PORT))
-recv = dash.recv(1024)
-print('recv: ' + recv.decode())
 
 
 def get_program_state():
     try:
         global dash
         # outdata = 'programState\n'
-        print("---------------")
         outdata = 'running\n'
         dash.send(outdata.encode())
-        print("------")
 
         indata = dash.recv(1024)
         print('recv: ' + indata.decode())
@@ -59,6 +52,7 @@ def connect(ip):
         ret = get_running_status()
         if ret != -1:
             is_connected = True
+            threading.Thread(target=monitor_program_state, args=()).start()
 
         # return 0
         return ret
@@ -72,6 +66,8 @@ def disconnect():
         global master
         global is_connected
         master.close()
+
+        master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
         is_connected = False
         return 0
     except:
@@ -134,6 +130,7 @@ def lift_down(value):
 
 
 def set_target_pos(value):
+    print("set_target_pos:" + str(value))
     cancel_stop()
     try:
         global master
@@ -144,24 +141,18 @@ def set_target_pos(value):
 
 
 def calibrate():
+    print("[WARNING] execute calibrate")
     cancel_stop()
     try:
-        lift_down(True)
-        while 1:
-            old = get_current_pos()
-            datetime.time.sleep(1)
-            now = get_current_pos()
-            if old == now:
-                global master
-                master.execute(slave, cst.WRITE_SINGLE_COIL, 2049, output_value=1)
-                datetime.time.sleep(1)
-                master.execute(slave, cst.WRITE_SINGLE_COIL, 2049, output_value=0)
-                ret = get_calibration_status()
-                if ret[0] == 0:
-                    return 0
-                else:
-                    return -1
-            # time.sleep(1)
+        global master
+        master.execute(slave, cst.WRITE_SINGLE_COIL, 2049, output_value=1)
+        time.sleep(1)
+        master.execute(slave, cst.WRITE_SINGLE_COIL, 2049, output_value=0)
+        ret = get_calibration_status()
+        if ret[0] == 0:
+            return 0
+        else:
+            return -1
     except:
         return -1
 
@@ -169,7 +160,8 @@ def calibrate():
 def get_target_pos():
     try:
         global master
-        ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 130, 1)
+        # ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 130, 1)
+        ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 100, 1)
         return ret[0]
     except:
         return -1
@@ -178,8 +170,11 @@ def get_target_pos():
 def get_current_pos():
     try:
         global master
-        ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 110, 1)
-        return ret[0]
+        # ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 110, 1)
+        ret = master.execute(slave, cst.READ_HOLDING_REGISTERS, 130, 1)
+        # return ret[0]
+        # unsigned to signed
+        return ctypes.c_int16(ret[0]).value
     except:
         return -1
 
@@ -230,31 +225,35 @@ def monitor_program_state():
     global current_program_state
     global pre_program_state
     global is_connected
+    HOST = '127.0.0.1'
+    PORT = 29999
 
-    while True:
+    try:
+        dash.connect((HOST, PORT))
+        recv = dash.recv(1024)
+        print('recv: ' + recv.decode())
+    except:
+        print("[WARNING] build socket with robot failed.....")
+
+    print("[WARING] Start Monitor Program State...........")
+    pre_program_state = get_program_state()
+    while is_connected:
         res = get_program_state()
         if res == -1:
             print("[WARING] get program state failed")
             time.sleep(1)
             continue
         current_program_state = res
-        # if current_program_state == 'STOPPED' and pre_program_state == 'PLAYING':
-        #     print("[Warning] Program Stopped")
-        #     if is_connected:
-        #         set_target_pos(get_target_pos())
 
         if current_program_state == 'false' and pre_program_state == 'true':
             print("[Warning] Program Stopped")
             # if is_connected:
-            #     # set_target_pos(get_target_pos())
             #     stop()
             stop()
         pre_program_state = current_program_state
         time.sleep(1)
+    print("[WARNING] Monitor Thread Exit.................")
 
-
-pre_program_state = get_program_state()
-threading.Thread(target=monitor_program_state, args=()).start()
 
 port = 9999
 server = SimpleXMLRPCServer(("127.0.0.1", port), allow_none=True)

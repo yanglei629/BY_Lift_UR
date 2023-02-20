@@ -136,16 +136,8 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
         scriptWriter.appendLine("lift.cancel_stop()");
         scriptWriter.appendLine("lift.set_target_pos(" + getPos() + ")");
 
-        //wait for arrive
-        /*scriptWriter.whileCondition("not(lift.get_current_pos() ==" + getPos() + ")");
-        //scriptWriter.appendLine("sleep(1)");
-        scriptWriter.sleep(1);
-        scriptWriter.sync();
-        scriptWriter.end();*/
 
-
-        //scriptWriter.appendLine("while lift.get_current_pos() != " + getPos() + ":");
-        scriptWriter.appendLine("while lift.get_target_pos() != " + getPos() + ":");
+        scriptWriter.appendLine("while lift.get_current_pos() != " + getPos() + ":");
         scriptWriter.appendLine("    sleep(1)");
         scriptWriter.appendLine("end");
     }
@@ -178,6 +170,7 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
         return returnValue;
     }
 
+
     public int getMovingStatus() {
         int returnValue = getInstallation().getXmlRpcDaemonInterface().get_running_status();
         return returnValue;
@@ -186,7 +179,7 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
     private void updateUI() {
         view.setTargetPosLabel(getTextResource().targetPos() + ":" + getTargetPos() + "mm");
 
-        view.setCurrentPosLabel(getTextResource().currentPos() + ":" + getTargetPos() + "mm");
+        view.setCurrentPosLabel(getTextResource().currentPos() + ":" + getCurrentPos() + "mm");
 
         int value = getMovingStatus();
         if (value == 1) {

@@ -1,6 +1,8 @@
 package com.backyard.DL1200LIFT.impl.installation;
 
 import com.backyard.DL1200LIFT.impl.Style;
+import com.backyard.DL1200LIFT.impl.program.BackyardLiftProgramNodeContribution;
+import com.ur.urcap.api.contribution.ContributionProvider;
 import com.ur.urcap.api.contribution.installation.swing.SwingInstallationNodeView;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardTextInput;
@@ -36,6 +38,14 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
     private JComboBox modeComboBox;
     private JButton cancelStopBtn;
 
+    /**
+     * status ui component
+     */
+    private JLabel statusHeader;
+    private JLabel labelCurrentPos;
+    private JLabel labelMovingStatus;
+    private Box controlBox;
+
     public BackyardLiftInstallationNodeView(Style style) {
         this.style = style;
     }
@@ -49,16 +59,18 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
         panel.add(createLogo());
         panel.add(style.createVerticalSpacing());
 
-        /*panel.add(createDaemonControl(contribution));
-        panel.add(style.createVerticalSpacing());*/
-
         panel.add(createInput(contribution));
         panel.add(style.createVerticalSpacing());
 
         panel.add(createCombo(contribution));
         panel.add(style.createVerticalSpacing());
 
-        panel.add(createButton(contribution));
+
+        controlBox = createButton(contribution);
+        panel.add(controlBox);
+
+        panel.add(style.createVerticalSpacing());
+        panel.add(createStatusBox());
     }
 
     //	logo box
@@ -170,9 +182,13 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
                 Integer connect = installationNode.getXmlRpcDaemonInterface().connect(ipField.getText());
                 if (null != connect && connect >= 0) {
                     System.out.println("Connect Lift Success");
-                    modeBox.setVisible(true);
-                    setConnectStatusLabel(installationNode.getTextResource().connected());
 
+                    installationNode.isConnected = true;
+                    setConnectStatusLabel(installationNode.getTextResource().connected());
+                    modeBox.setVisible(true);
+                    controlBox.setVisible(true);
+
+                    //get current mode
                     Integer mode = installationNode.getXmlRpcDaemonInterface().get_mode();
 
                     //0: jog    1: remote
@@ -193,10 +209,11 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
             @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 Integer result = installationNode.getXmlRpcDaemonInterface().disconnect();
-                modeBox.setVisible(false);
+
                 if (null != result && result >= 0) {
-                    //stateMessage.setText("Connected");
                     setConnectStatusLabel(installationNode.getTextResource().No_Connection());
+                    modeBox.setVisible(false);
+                    controlBox.setVisible(false);
                 }
             }
         });
@@ -210,6 +227,34 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
         return inputBox;
     }
 
+
+    //status box
+    private Box createStatusBox() {
+        Box box = Box.createVerticalBox();
+        box.setAlignmentX(Component.LEFT_ALIGNMENT);
+        statusHeader = new JLabel("Status");
+        statusHeader.setFont(new Font("宋体bai", Font.BOLD, 15));
+        statusHeader.setFont(statusHeader.getFont().deriveFont(Font.BOLD, style.getSmallHeaderFontSize()));
+
+        box.add(statusHeader);
+        labelCurrentPos = new JLabel("Current Position:");
+
+        //labelTargetPos = new JLabel("Target Position:");
+
+        labelMovingStatus = new JLabel("Running Status:");
+
+        box.add(style.createVerticalSpacing());
+        box.add(labelCurrentPos);
+
+        /*box.add(Box.createVerticalStrut(10));
+        box.add(labelTargetPos);*/
+
+        box.add(Box.createVerticalStrut(10));
+        box.add(labelMovingStatus);
+        box.add(Box.createVerticalStrut(10));
+
+        return box;
+    }
 
     private Box createButton(final BackyardLiftInstallationNodeContribution installationNode) {
         Box box = Box.createHorizontalBox();
@@ -288,6 +333,7 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
 
         /*box.add(style.createHorizontalIndent());
         box.add(cancelStopBtn);*/
+
         return box;
     }
 
@@ -295,7 +341,6 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
         ipField.setText(text);
     }
 
-    //  -------------------------- get Image from file ----------------------------------------------------------------
     private Image getImage(String filaPath) {
         try {
             BufferedImage image = ImageIO.read(getClass().getResource(filaPath));
@@ -306,7 +351,6 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
         }
     }
 
-    //    ---------------------------Resize image Method----------------------------------------------------------------
     private Image getScaledImage(Image srcImg, int w, int h) {
         BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = resizedImg.createGraphics();
@@ -351,9 +395,16 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
     }
 
     public void setDisconnect(Integer result, BackyardLiftInstallationNodeContribution installationNode) {
-        modeBox.setVisible(false);
         System.out.println("Lift Connection Miss");
         setConnectStatusLabel(this.contribution.getTextResource().No_Connection());
+        modeBox.setVisible(false);
+        controlBox.setVisible(false);
+    }
+
+    public void setConnected() {
+        setConnectStatusLabel(this.contribution.getTextResource().connected());
+        modeBox.setVisible(true);
+        controlBox.setVisible(true);
     }
 
     public void setStopBtn(String stop) {
@@ -362,5 +413,29 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
 
     public void setCancelStopBtn(String cancelStop) {
         cancelStopBtn.setText(cancelStop);
+    }
+
+
+    /**
+     * lift status
+     */
+    public void setStatusText(String status) {
+        statusHeader.setText(status);
+    }
+
+    public void setCurrentPosLabel(String text) {
+        labelCurrentPos.setText(text);
+    }
+
+    public void setMovingStatus(String text) {
+        labelMovingStatus.setText(text);
+    }
+
+    public void setModeBox(Integer mode) {
+        if (mode == 10) {
+            modeComboBox.setSelectedIndex(0);
+        } else {
+            modeComboBox.setSelectedIndex(1);
+        }
     }
 }
