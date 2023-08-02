@@ -1,10 +1,6 @@
 package com.backyard.DL1200LIFT.impl.program;
 
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -12,14 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.backyard.DL1200LIFT.impl.Style;
 import com.ur.urcap.api.contribution.ContributionProvider;
@@ -42,6 +31,8 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
     private JLabel statusHeader;
     private JLabel argumentHeader;
     private JButton stopBtn;
+    private JLabel labelConnectionStatus;
+    private JCheckBox autoConnectCheckBox;
 
     public BackyardLiftProgramNodeView(Style style) {
         this.style = style;
@@ -77,10 +68,13 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
         statusHeader.setFont(statusHeader.getFont().deriveFont(Font.BOLD, style.getSmallHeaderFontSize()));
 
         box.add(statusHeader);
+        labelConnectionStatus = new JLabel("Connection Status");
         labelCurrentPos = new JLabel("Current Position:");
         labelTargetPos = new JLabel("Target Position:");
         labelMovingStatus = new JLabel("Running Status:");
         box.add(style.createVerticalSpacing());
+        box.add(labelConnectionStatus);
+        box.add(Box.createVerticalStrut(10));
         box.add(labelCurrentPos);
         box.add(Box.createVerticalStrut(10));
         box.add(labelTargetPos);
@@ -141,7 +135,6 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
 
         //pos input field
         inputPos = new JTextField();
-        //inputPos.setFocusable(false);
         inputPos.setPreferredSize(style.getInputShortFieldSize());
         inputPos.setMaximumSize(inputPos.getPreferredSize());
         inputPos.addMouseListener(new MouseAdapter() {
@@ -166,6 +159,35 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
         box.add(style.createHorizontalSpacing(10));
         box.add(new JLabel("mm"));
         box.add(style.createHorizontalSpacing(15));
+
+        Box autoActivationBox = Box.createVerticalBox();
+        Box connectStatusBox = Box.createHorizontalBox();
+        JLabel connectStatusLabel = new JLabel("Connect Status" + ":");
+        connectStatusLabel.setPreferredSize(new Dimension(120, 30));
+        connectStatusBox.add(connectStatusLabel);
+        JLabel connectStatusValue = new JLabel();
+        connectStatusValue.setPreferredSize(new Dimension(100, 30));
+        connectStatusBox.add(connectStatusValue);
+        //autoActivationBox.add(connectStatusBox);
+        autoConnectCheckBox = new JCheckBox("Auto-activation");
+        autoConnectCheckBox.setMaximumSize(new Dimension(150, 30));
+        autoConnectCheckBox.setPreferredSize(new Dimension(150, 30));
+        autoConnectCheckBox.setMinimumSize(new Dimension(150, 30));
+        autoConnectCheckBox.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                if (autoConnectCheckBox.isSelected()) {
+                    provider.get().getInstalltion().setAutoActivation(true);
+                } else {
+                    provider.get().getInstalltion().setAutoActivation(false);
+                }
+            }
+        });
+        connectStatusBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        autoActivationBox.add(autoConnectCheckBox);
+        box.add(style.createHorizontalSpacing(50));
+        box.add(autoActivationBox);
 
         btnbox.add(performBtn);
         btnbox.add(style.createHorizontalSpacing(10));
@@ -241,5 +263,17 @@ public class BackyardLiftProgramNodeView implements SwingProgramNodeView<Backyar
 
     public void setStopBtn(String stop) {
         stopBtn.setText(stop);
+    }
+
+    public void setConnectionStatus(String s) {
+        labelConnectionStatus.setText(s);
+    }
+
+    public void showAutoActivate(boolean autoActivation) {
+        autoConnectCheckBox.setSelected(autoActivation);
+    }
+
+    public void setAutoConnection(String autoActivation) {
+        autoConnectCheckBox.setText(autoActivation);
     }
 }

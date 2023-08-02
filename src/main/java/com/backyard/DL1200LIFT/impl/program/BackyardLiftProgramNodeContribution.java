@@ -1,9 +1,6 @@
 package com.backyard.DL1200LIFT.impl.program;
 
 import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.swing.SwingUtilities;
 
 import com.backyard.DL1200LIFT.impl.i18n.LanguagePack;
 import com.backyard.DL1200LIFT.impl.i18n.TextResource;
@@ -16,7 +13,6 @@ import com.ur.urcap.api.domain.script.ScriptWriter;
 import com.ur.urcap.api.domain.undoredo.UndoRedoManager;
 import com.ur.urcap.api.domain.undoredo.UndoableChanges;
 import com.ur.urcap.api.domain.userinteraction.inputvalidation.InputValidationFactory;
-import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputCallback;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardInputFactory;
 import com.ur.urcap.api.domain.userinteraction.keyboard.KeyboardNumberInput;
 
@@ -61,6 +57,8 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
         this.exporter = new ScriptExporter();
 
         languagePack = new LanguagePack(apiProvider.getSystemAPI().getSystemSettings().getLocalization());
+
+        setPos(10);
     }
 
     public InputValidationFactory getKeyboardInputValidationFactory() {
@@ -86,10 +84,15 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
 
         view.setMovingStatus(getTextResource().status() + ":");
 
+        view.setConnectionStatus(getTextResource().connectionStatus() + ":");
+
+        view.setAutoConnection(getTextResource().autoActivation());
+
         view.setStopBtn(getTextResource().stop());
 
         //refresh status
         view.showPos(getPos());
+        view.showAutoActivate(getInstalltion().getAutoActivation());
 
 
         isViewOpen = true;
@@ -122,6 +125,7 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
     @Override
     public String getTitle() {
         return "BYLift: Pos : " + (model.isSet(POSKEY) ? getPos() : "");
+        //return "BYLift: Pos : " + getPos();
     }
 
     @Override
@@ -132,12 +136,12 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
     @Override
     public void generateScript(ScriptWriter scriptWriter) {
         //build rpc client
-        scriptWriter.appendLine("lift=rpc_factory(\"xmlrpc\",\"http://127.0.0.1:9999/\")");
-        scriptWriter.appendLine("lift.cancel_stop()");
-        scriptWriter.appendLine("lift.set_target_pos(" + getPos() + ")");
+        scriptWriter.appendLine("BY_lift=rpc_factory(\"xmlrpc\",\"http://127.0.0.1:9999/\")");
+        scriptWriter.appendLine("BY_lift.cancel_stop()");
+        scriptWriter.appendLine("BY_lift.set_target_pos(" + getPos() + ")");
 
 
-        scriptWriter.appendLine("while lift.get_current_pos() != " + getPos() + ":");
+        scriptWriter.appendLine("while BY_lift.get_current_pos() != " + getPos() + ":");
         scriptWriter.appendLine("    sleep(1)");
         scriptWriter.appendLine("end");
     }
@@ -177,15 +181,29 @@ public class BackyardLiftProgramNodeContribution implements ProgramNodeContribut
     }
 
     private void updateUI() {
-        view.setTargetPosLabel(getTextResource().targetPos() + ":" + getTargetPos() + "mm");
+        System.out.println("refresh state........................");
+        int targetPos = getTargetPos();
+        view.setTargetPosLabel(getTextResource().targetPos() + ":" + targetPos + "mm");
 
-        view.setCurrentPosLabel(getTextResource().currentPos() + ":" + getCurrentPos() + "mm");
+        int currentPos = getCurrentPos();
+        view.setCurrentPosLabel(getTextResource().currentPos() + ":" + currentPos + "mm");
 
         int value = getMovingStatus();
         if (value == 1) {
             view.setMovingStatus(getTextResource().status() + ":" + getTextResource().moving());
+        }
+        if (value == 0) {
+            if (targetPos != currentPos) {
+                view.setMovingStatus(getTextResource().status() + ":" + getTextResource().unAchievable());
+            } else {
+                view.setMovingStatus(getTextResource().status() + ":" + getTextResource().stopped());
+            }
+        }
+
+        if (value == -1) {
+            view.setConnectionStatus(getTextResource().connectionStatus() + ":" + getTextResource().disconnected());
         } else {
-            view.setMovingStatus(getTextResource().status() + ":" + getTextResource().stopped());
+            view.setConnectionStatus(getTextResource().connectionStatus() + ":" + getTextResource().connected());
         }
     }
 

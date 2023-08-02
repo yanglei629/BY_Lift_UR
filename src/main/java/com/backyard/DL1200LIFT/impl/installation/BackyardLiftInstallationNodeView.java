@@ -67,6 +67,7 @@ public class BackyardLiftInstallationNodeView implements SwingInstallationNodeVi
 
 
         controlBox = createButton(contribution);
+        controlBox.setVisible(false);
         panel.add(controlBox);
 
         panel.add(style.createVerticalSpacing());

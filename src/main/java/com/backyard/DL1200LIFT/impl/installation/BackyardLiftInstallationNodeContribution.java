@@ -19,7 +19,7 @@ import scriptCommunicator.ScriptSender;
 public class BackyardLiftInstallationNodeContribution implements InstallationNodeContribution {
 
     private static final String IP_KEY = "inputIP";
-    private static final String DEFAULT_IP = "192.168.10.11";
+    private static final String DEFAULT_IP = "192.168.1.5";
     private final BackyardLiftInstallationNodeView view;
     private final KeyboardInputFactory keyboardFactory;
     private final InstallationAPIProvider apiProvider;
@@ -68,6 +68,7 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
     @Override
     public void openView() {
         //international
+        // i18n
         view.setIpLabel(createIPString());
         view.setConnectBtn(createConnectString());
         view.setDisconnectBtn(createDisconnectString());
@@ -103,7 +104,6 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
                         updateUI();
                     }
 
-                    //sleep
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException e) {
@@ -117,7 +117,9 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
     //refresh connection state
     private void refreshConnectionState() {
         Integer current_pos = getXmlRpcMyDaemonInterface().get_current_pos();
-        if (current_pos == null || current_pos == -1) {
+        Integer running_status = getXmlRpcMyDaemonInterface().get_running_status();
+        //if (current_pos == null || current_pos == -1) {
+        if (running_status == null || running_status == -1) {
             view.setDisconnect(-1, null);
             isConnected = false;
         } else {
@@ -220,6 +222,14 @@ public class BackyardLiftInstallationNodeContribution implements InstallationNod
 
     public void setMode(String selected) {
         this.model.set("MODE", selected);
+    }
+
+    public void setAutoActivation(boolean b) {
+        this.model.set("AUTO_ACTIVATION", b);
+    }
+
+    public boolean getAutoActivation() {
+        return (boolean) this.model.get("AUTO_ACTIVATION", false);
     }
 
     public XmlRpcMyDaemonInterface getXmlRpcMyDaemonInterface() {

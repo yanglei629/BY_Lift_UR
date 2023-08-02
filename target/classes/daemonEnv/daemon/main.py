@@ -14,8 +14,10 @@ import ctypes
 
 is_connected = False
 slave = 1
-master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
-master.set_timeout(5)
+# master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
+master = None
+# master = modbus_tcp.TcpMaster("192.168.1.5", 502, 5)
+# master.set_timeout(5)
 
 dash = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -67,7 +69,8 @@ def disconnect():
         global is_connected
         master.close()
 
-        master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
+        # master = modbus_tcp.TcpMaster("127.0.0.1", 502, 5)
+        master = None
         is_connected = False
         return 0
     except:
